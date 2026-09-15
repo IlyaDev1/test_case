@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        name: ruff (lint + fix)
+        args: [--fix]
+        files: ^llm_skills/.*\.py$
+
+  - repo: https://github.com/psf/black
+    rev: 26.1.0
+    hooks:
+      - id: black
+        name: Format code with Black
+        language_version: python3
+        files: ^llm_skills/.*\.py$
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.19.1
+    hooks:
+      - id: mypy
+        name: Type checking
+        language_version: python3
+        files: ^llm_skills/.*\.py$
+        exclude: ^llm_skills/tests/
+        args: [--config-file=llm_skills/pyproject.toml]
+
+  - repo: local
+    hooks:
+      - id: tests
+        name: unit tests
+        language: system
+        entry: bash -c 'cd llm_skills && uv run pytest tests/unit/'
+        pass_filenames: false
+        files: ^llm_skills/.*\.py$

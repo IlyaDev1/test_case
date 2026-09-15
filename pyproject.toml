@@ -1,0 +1,46 @@
+[project]
+name = "llm-skills"
+version = "0.1.0"
+description = "LLM Skills test assignment: meeting protocol parser and skill registry"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "python-docx>=1.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.0",
+    "black>=26.1.0",
+    "mypy>=1.19.0",
+    "ruff>=0.11.0",
+    "pytest>=8.3.0",
+    "httpx>=0.28.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.mypy]
+explicit_package_bases = true
+ignore_missing_imports = true
+exclude = [
+    "tests",
+]
