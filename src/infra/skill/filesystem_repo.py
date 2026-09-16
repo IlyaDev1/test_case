@@ -3,14 +3,14 @@ from pathlib import Path
 
 import yaml
 
-from src.core.application.skill.ports import SkillSourceInterface
+from src.core.application.skill.ports import SkillSourcePort
 from src.core.domain.skill.entities import SkillMeta
 from src.core.domain.skill.exceptions import SkillValidationError
 
 logger = logging.getLogger(__name__)
 
 
-class FilesystemSkillLoader(SkillSourceInterface):
+class FilesystemSkillRepo(SkillSourcePort):
     """Загружает SkillMeta из каталога skills/*/SKILL.md."""
 
     def __init__(self, skills_dir: Path) -> None:

@@ -1,3 +1,3 @@
-from src.infra.skill.filesystem_loader import FilesystemSkillLoader
+from src.infra.skill.filesystem_repo import FilesystemSkillRepo
 
-__all__ = ["FilesystemSkillLoader"]
+__all__ = ["FilesystemSkillRepo"]
