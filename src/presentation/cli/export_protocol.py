@@ -1,6 +1,15 @@
-"""CLI для экспорта протокола встречи в Word. Реализация — на этапе 3."""
+"""CLI для экспорта протокола встречи в Word."""
 
 import argparse
+import sys
+from pathlib import Path
+
+from src.core.abc.result import FailResult, SuccessResult
+from src.core.application.protocol import (
+    ExportProtocolDTO,
+    ExportProtocolResult,
+    ExportProtocolToDocxUC,
+)
 
 
 def main() -> None:
@@ -17,8 +26,18 @@ def main() -> None:
         required=True,
         help="Output DOCX file",
     )
-    parser.parse_args()
-    raise NotImplementedError("Export will be implemented in stage 3")
+    args = parser.parse_args()
+
+    text = Path(args.input_path).read_text(encoding="utf-8")
+    result = ExportProtocolToDocxUC().execute(ExportProtocolDTO(text=text))
+
+    if isinstance(result, FailResult):
+        print(result.message, file=sys.stderr)
+        raise SystemExit(1)
+
+    assert isinstance(result, SuccessResult)
+    assert isinstance(result.data, ExportProtocolResult)
+    Path(args.output_path).write_bytes(result.data.content)
 
 
 if __name__ == "__main__":
