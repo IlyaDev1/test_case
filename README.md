@@ -27,12 +27,10 @@ tests/
 ## Установка
 
 ```bash
-cd test/llm_skills
+cd test_case
 uv sync --group dev
 uv run pre-commit install
 ```
-
-Git-корень репозитория — `test/` (не `llm_skills/`). `pre-commit install` из `llm_skills/` ставит хук с конфигом `llm_skills/.pre-commit-config.yaml`.
 
 ## Запуск
 
