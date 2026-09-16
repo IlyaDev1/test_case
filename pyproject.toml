@@ -5,6 +5,7 @@ description = "LLM Skills test assignment: meeting protocol parser and skill reg
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiohttp>=3.11.0",
     "dishka>=1.10.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
@@ -20,6 +21,7 @@ dev = [
     "mypy>=1.19.0",
     "ruff>=0.11.0",
     "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
     "httpx>=0.28.0",
     "types-pyyaml>=6.0.0",
 ]
@@ -40,6 +42,7 @@ known-first-party = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+asyncio_mode = "auto"
 
 [tool.mypy]
 explicit_package_bases = true

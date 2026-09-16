@@ -17,9 +17,10 @@ from src.presentation.fastapi.app import create_app
         "src.core.application.protocol",
         "src.infra.skill",
         "src.infra.protocol",
+        "src.infra.llm",
         "src.infra.di",
+        "src.core.application.llm",
         "src.presentation.fastapi.app",
-        "src.presentation.cli.export_protocol",
     ],
 )
 def test_module_imports(module_path: str) -> None:

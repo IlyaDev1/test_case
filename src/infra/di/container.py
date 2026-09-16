@@ -5,11 +5,13 @@ from dishka.integrations.fastapi import FastapiProvider
 
 from src.infra.di.providers.application import ApplicationProvider
 from src.infra.di.providers.infra import InfraProvider
+from src.infra.di.providers.llm import LlmProvider
 
 
 def app_providers() -> tuple[Provider, ...]:
     return (
         InfraProvider(),
+        LlmProvider(),
         ApplicationProvider(),
     )
 

@@ -1,11 +1,18 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.core.abc.result import FailResult, SuccessResult
 from src.core.application.protocol import ExportProtocolDTO, ExportProtocolResult
+from src.core.application.protocol.constants import (
+    DEFAULT_SKILL_NAME,
+    LLM_ERROR_CODE,
+    SKILL_NOT_FOUND_CODE,
+)
+from src.core.application.protocol.dtos import GenerateProtocolDTO
 from src.core.application.protocol.export_protocol_uc import ExportProtocolToDocxUC
+from src.core.application.protocol.generate_protocol_uc import GenerateProtocolToDocxUC
 
 DOCX_MEDIA_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -23,6 +30,19 @@ class ExportProtocolRequest(BaseModel):
     text: str
 
 
+class GenerateProtocolRequest(BaseModel):
+    notes: str
+    skill_name: str = Field(default=DEFAULT_SKILL_NAME)
+
+
+def _docx_response(content: bytes) -> Response:
+    return Response(
+        content=content,
+        media_type=DOCX_MEDIA_TYPE,
+        headers={"Content-Disposition": f'attachment; filename="{DOCX_FILENAME}"'},
+    )
+
+
 @protocol_router.post("/export")
 def export_protocol(
     body: ExportProtocolRequest,
@@ -35,8 +55,25 @@ def export_protocol(
 
     assert isinstance(result, SuccessResult)
     assert isinstance(result.data, ExportProtocolResult)
-    return Response(
-        content=result.data.content,
-        media_type=DOCX_MEDIA_TYPE,
-        headers={"Content-Disposition": f'attachment; filename="{DOCX_FILENAME}"'},
+    return _docx_response(result.data.content)
+
+
+@protocol_router.post("/generate")
+async def generate_protocol(
+    body: GenerateProtocolRequest,
+    uc: FromDishka[GenerateProtocolToDocxUC],
+) -> Response:
+    result = await uc.execute(
+        GenerateProtocolDTO(notes=body.notes, skill_name=body.skill_name),
     )
+
+    if isinstance(result, FailResult):
+        if result.code == SKILL_NOT_FOUND_CODE:
+            raise HTTPException(status_code=404, detail=result.message)
+        if result.code == LLM_ERROR_CODE:
+            raise HTTPException(status_code=502, detail=result.message)
+        raise HTTPException(status_code=422, detail=result.message)
+
+    assert isinstance(result, SuccessResult)
+    assert isinstance(result.data, ExportProtocolResult)
+    return _docx_response(result.data.content)

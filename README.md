@@ -10,7 +10,7 @@ src/
     domain/       # сущности, правила валидации, доменные исключения
     application/  # use cases, сервисы приложения, Result
   infra/          # docx-экспорт, загрузчик скилов с диска, DI (dishka)
-  presentation/   # FastAPI-роутеры, CLI
+  presentation/   # FastAPI-роутеры
 skills/           # артефакты скилов (SKILL.md, references/, routes/)
 tests/
 ```
@@ -20,9 +20,9 @@ tests/
 | Слой | Зачем |
 |------|-------|
 | **domain** | Чистые модели (`MeetingProtocol`, `SkillMeta`) и правила — без зависимостей от FastAPI, docx и файловой системы. |
-| **application** | Оркестрация: `ParseProtocolUC`, `ExportProtocolToDocxUC`, `SkillRegistryService`. Возвращает `SuccessResult` / `FailResult`, не бросает HTTP-исключения. |
-| **infra** | Конкретные адаптеры: `DocxProtocolExporterService`, `FilesystemSkillRepo`, wiring через dishka. |
-| **presentation** | HTTP и CLI — только трансляция запроса в DTO и ответа в status code / файл. |
+| **application** | Оркестрация: `ParseProtocolUC`, `ExportProtocolToDocxUC`, `GenerateProtocolToDocxUC`, `SkillRegistryService`. Порты: `LlmChatPort`, `SkillPromptPort`. |
+| **infra** | Адаптеры: `DocxProtocolExporterService`, `FilesystemSkillRepo`, `DeepSeekGateway` (aiohttp), wiring через dishka. |
+| **presentation** | HTTP — трансляция запроса в DTO и ответа в status code / файл. |
 
 Зависимости направлены внутрь: `presentation → application → domain`, `infra` подключается снаружи через DI.
 
@@ -46,7 +46,7 @@ uv sync --group dev
 uv run pre-commit install
 ```
 
-Секреты (API-ключи и т.п.) храните в `.env` — файл в `.gitignore`, в репозиторий не коммитится.
+Секреты (API-ключи и т.п.) храните в `.env` — файл в `.gitignore`, в репозиторий не коммитится. Шаблон переменных: `.env.example`.
 
 ## Запуск
 
@@ -114,12 +114,15 @@ curl -X POST http://127.0.0.1:8000/protocol/export \
 
 При ошибке парсинга — HTTP 422 с описанием. Успешный ответ — файл `.docx` (`Content-Disposition: attachment; filename="protocol.docx"`).
 
-### CLI (экспорт протокола в Word)
+**Генерация протокола из заметок через LLM** (DeepSeek + скил `meeting-minutes` → markdown → docx):
 
 ```bash
-uv run python -m src.presentation.cli.export_protocol \
-  --in examples/notes_to_protocol.md \
-  --out protocol.docx
+curl -X POST http://127.0.0.1:8000/protocol/generate \
+  -H 'Content-Type: application/json' \
+  -d '{"notes": "12.03 созвон: решили не переносить релиз, Павел чинит 401 до 15.03"}' \
+  -o protocol.docx
 ```
 
-При ошибке разбора markdown — сообщение в stderr и exit code `1`.
+Требуется `DEEPSEEK_API_KEY` в `.env`. Опционально: `skill_name` (по умолчанию `meeting-minutes`).
+
+Коды ошибок: 404 — скил не найден, 422 — невалидный markdown от модели, 502 — ошибка LLM.

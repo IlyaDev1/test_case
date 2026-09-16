@@ -21,3 +21,9 @@ class ExportProtocolDTO:
 @dataclass(frozen=True, slots=True)
 class ExportProtocolResult:
     content: bytes
+
+
+@dataclass(frozen=True, slots=True)
+class GenerateProtocolDTO:
+    notes: str
+    skill_name: str = "meeting-minutes"
