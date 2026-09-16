@@ -1,7 +1,5 @@
-class ProtocolParseError(Exception):
-    """Текст не соответствует контракту markdown-протокола."""
+from src.core.domain.exceptions import DomainError
 
-    def __init__(self, message: str, *, context: object | None = None) -> None:
-        super().__init__(message)
-        self.message = message
-        self.context = context
+
+class ProtocolParseError(DomainError):
+    """Текст не соответствует контракту markdown-протокола."""

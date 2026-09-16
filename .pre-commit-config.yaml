@@ -26,6 +26,9 @@ repos:
         files: \.py$
         exclude: ^(tests/|\.venv/)
         args: [--config-file=pyproject.toml]
+        additional_dependencies:
+          - types-PyYAML
+          - pyyaml
 
   - repo: local
     hooks:

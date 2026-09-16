@@ -29,8 +29,8 @@ def parser_service() -> ProtocolTextParserService:
 
 
 @pytest.fixture
-def uc() -> ParseProtocolUC:
-    return ParseProtocolUC()
+def uc(parser_service: ProtocolTextParserService) -> ParseProtocolUC:
+    return ParseProtocolUC(parser=parser_service)
 
 
 def test_parse_full_example(parser_service: ProtocolTextParserService) -> None:

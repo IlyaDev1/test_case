@@ -1,21 +1,20 @@
 from src.core.abc.result import FailResult, SuccessResult
-from src.core.abc.usecase import UseCaseABC
+from src.core.abc.usecase import UseCaseInterface
+from src.core.application.protocol.constants import PARSE_ERROR_CODE
 from src.core.application.protocol.dtos import ParseProtocolDTO, ParseProtocolResult
 from src.core.application.protocol.services import ProtocolTextParserService
 from src.core.domain.protocol.exceptions import ProtocolParseError
 
-PARSE_ERROR_CODE = "PROTOCOL_PARSE_ERROR"
 
-
-class ParseProtocolUC(UseCaseABC):
+class ParseProtocolUC(UseCaseInterface):
     """Разбор markdown-протокола в доменную модель."""
 
-    def __init__(self) -> None:
-        self._parser_service = ProtocolTextParserService()
+    def __init__(self, parser: ProtocolTextParserService) -> None:
+        self._parser = parser
 
     def execute(self, dto: ParseProtocolDTO) -> SuccessResult | FailResult:
         try:
-            protocol = self._parser_service.parse(dto.text)
+            protocol = self._parser.parse(dto.text)
         except ProtocolParseError as exc:
             return FailResult(
                 message=exc.message,

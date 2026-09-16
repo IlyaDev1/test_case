@@ -1,11 +1,16 @@
 from io import BytesIO
 from pathlib import Path
 
+import pytest
 from docx import Document
 from fastapi.testclient import TestClient
 
 from src.core.abc import SuccessResult
-from src.core.application.protocol import ExportProtocolDTO, ExportProtocolToDocxUC
+from src.core.application.protocol import (
+    ExportProtocolDTO,
+    ExportProtocolToDocxUC,
+    ProtocolTextParserService,
+)
 from src.core.domain.protocol import NO_DATA, NOT_SPECIFIED
 from src.infra.protocol.docx_exporter import (
     SECTION_DECISIONS,
@@ -13,6 +18,7 @@ from src.infra.protocol.docx_exporter import (
     SECTION_METADATA,
     SECTION_TASKS,
     TITLE,
+    DocxProtocolExporterService,
 )
 from src.presentation.fastapi.app import create_app
 
@@ -23,6 +29,14 @@ FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 DOCX_MEDIA_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 )
+
+
+@pytest.fixture
+def export_uc() -> ExportProtocolToDocxUC:
+    return ExportProtocolToDocxUC(
+        parser=ProtocolTextParserService(),
+        exporter=DocxProtocolExporterService(),
+    )
 
 
 def _load_docx(content: bytes) -> Document:
@@ -61,16 +75,16 @@ def _section_paragraphs(document: Document, section_title: str) -> list[str]:
     return texts
 
 
-def _export_fixture(name: str) -> bytes:
+def _export_fixture(export_uc: ExportProtocolToDocxUC, name: str) -> bytes:
     text = (FIXTURES / name).read_text(encoding="utf-8")
-    result = ExportProtocolToDocxUC().execute(ExportProtocolDTO(text=text))
+    result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
     return result.data.content
 
 
-def test_docx_structure_full_example() -> None:
+def test_docx_structure_full_example(export_uc: ExportProtocolToDocxUC) -> None:
     text = (EXAMPLES / "notes_to_protocol.md").read_text(encoding="utf-8")
-    result = ExportProtocolToDocxUC().execute(ExportProtocolDTO(text=text))
+    result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
     document = _load_docx(result.data.content)
 
@@ -94,8 +108,10 @@ def test_docx_structure_full_example() -> None:
     assert len(table.rows) == 4
 
 
-def test_docx_missing_assignee_and_deadline() -> None:
-    content = _export_fixture("protocol_missing_assignee_deadline.md")
+def test_docx_missing_assignee_and_deadline(
+    export_uc: ExportProtocolToDocxUC,
+) -> None:
+    content = _export_fixture(export_uc, "protocol_missing_assignee_deadline.md")
     document = _load_docx(content)
 
     table = document.tables[0]
@@ -106,8 +122,8 @@ def test_docx_missing_assignee_and_deadline() -> None:
     assert rows[2] == ["Сделать Z", NOT_SPECIFIED, "10.01"]
 
 
-def test_docx_empty_sections() -> None:
-    content = _export_fixture("protocol_empty_sections.md")
+def test_docx_empty_sections(export_uc: ExportProtocolToDocxUC) -> None:
+    content = _export_fixture(export_uc, "protocol_empty_sections.md")
     document = _load_docx(content)
 
     assert _section_paragraphs(document, SECTION_DECISIONS) == [NO_DATA]

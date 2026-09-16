@@ -1,15 +1,24 @@
 """CLI для экспорта протокола встречи в Word."""
 
 import argparse
+import asyncio
 import sys
 from pathlib import Path
 
 from src.core.abc.result import FailResult, SuccessResult
-from src.core.application.protocol import (
-    ExportProtocolDTO,
-    ExportProtocolResult,
-    ExportProtocolToDocxUC,
-)
+from src.core.application.protocol import ExportProtocolDTO, ExportProtocolResult
+from src.core.application.protocol.export_protocol_uc import ExportProtocolToDocxUC
+from src.infra.di import create_container
+
+
+async def _export(text: str) -> SuccessResult | FailResult:
+    container = create_container()
+    try:
+        async with container() as scope:
+            uc = await scope.get(ExportProtocolToDocxUC)
+            return uc.execute(ExportProtocolDTO(text=text))
+    finally:
+        await container.close()
 
 
 def main() -> None:
@@ -29,7 +38,7 @@ def main() -> None:
     args = parser.parse_args()
 
     text = Path(args.input_path).read_text(encoding="utf-8")
-    result = ExportProtocolToDocxUC().execute(ExportProtocolDTO(text=text))
+    result = asyncio.run(_export(text))
 
     if isinstance(result, FailResult):
         print(result.message, file=sys.stderr)

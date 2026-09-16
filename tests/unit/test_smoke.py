@@ -3,7 +3,7 @@ import importlib
 import pytest
 from fastapi.testclient import TestClient
 
-from src.core.abc import FailResult, SuccessResult, UseCaseABC
+from src.core.abc import FailResult, SuccessResult, UseCaseInterface
 from src.presentation.fastapi.app import create_app
 
 
@@ -17,6 +17,7 @@ from src.presentation.fastapi.app import create_app
         "src.core.application.protocol",
         "src.infra.skill",
         "src.infra.protocol",
+        "src.infra.di",
         "src.presentation.fastapi.app",
         "src.presentation.cli.export_protocol",
     ],
@@ -34,9 +35,9 @@ def test_result_types() -> None:
     assert fail.code == "ERR"
 
 
-def test_usecase_abc_is_abstract() -> None:
+def test_usecase_interface_is_abstract() -> None:
     with pytest.raises(TypeError):
-        UseCaseABC()  # type: ignore[abstract]
+        UseCaseInterface()  # type: ignore[abstract]
 
 
 def test_create_app_health() -> None:

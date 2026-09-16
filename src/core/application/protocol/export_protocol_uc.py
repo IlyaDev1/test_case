@@ -1,28 +1,32 @@
 from src.core.abc.result import FailResult, SuccessResult
-from src.core.abc.usecase import UseCaseABC
-from src.core.application.protocol.dtos import (
-    ExportProtocolDTO,
-    ExportProtocolResult,
-    ParseProtocolDTO,
-    ParseProtocolResult,
-)
-from src.core.application.protocol.parse_protocol_uc import ParseProtocolUC
+from src.core.abc.usecase import UseCaseInterface
+from src.core.application.protocol.constants import PARSE_ERROR_CODE
+from src.core.application.protocol.dtos import ExportProtocolDTO, ExportProtocolResult
+from src.core.application.protocol.services import ProtocolTextParserService
+from src.core.domain.protocol.exceptions import ProtocolParseError
 from src.infra.protocol.docx_exporter import DocxProtocolExporterService
 
 
-class ExportProtocolToDocxUC(UseCaseABC):
+class ExportProtocolToDocxUC(UseCaseInterface):
     """Разбор markdown-протокола и экспорт в Word (.docx)."""
 
-    def __init__(self) -> None:
-        self._parse_uc = ParseProtocolUC()
-        self._exporter = DocxProtocolExporterService()
+    def __init__(
+        self,
+        parser: ProtocolTextParserService,
+        exporter: DocxProtocolExporterService,
+    ) -> None:
+        self._parser = parser
+        self._exporter = exporter
 
     def execute(self, dto: ExportProtocolDTO) -> SuccessResult | FailResult:
-        parse_result = self._parse_uc.execute(ParseProtocolDTO(text=dto.text))
-        if isinstance(parse_result, FailResult):
-            return parse_result
+        try:
+            protocol = self._parser.parse(dto.text)
+        except ProtocolParseError as exc:
+            return FailResult(
+                message=exc.message,
+                code=PARSE_ERROR_CODE,
+                context=exc.context,
+            )
 
-        parse_data = parse_result.data
-        assert isinstance(parse_data, ParseProtocolResult)
-        content = self._exporter.export(parse_data.protocol)
+        content = self._exporter.export(protocol)
         return SuccessResult(data=ExportProtocolResult(content=content))
