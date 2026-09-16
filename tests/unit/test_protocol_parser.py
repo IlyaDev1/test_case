@@ -8,6 +8,7 @@ from src.core.application.protocol import (
     ParseProtocolDTO,
     ParseProtocolResult,
     ParseProtocolUC,
+    ProtocolTextParserService,
 )
 from src.core.domain.protocol import (
     NO_DATA,
@@ -16,7 +17,6 @@ from src.core.domain.protocol import (
     ProtocolParseError,
     TaskItem,
 )
-from src.infra.protocol import ProtocolTextParser
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = ROOT / "examples"
@@ -24,18 +24,18 @@ FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
 
 @pytest.fixture
-def parser() -> ProtocolTextParser:
-    return ProtocolTextParser()
+def parser_service() -> ProtocolTextParserService:
+    return ProtocolTextParserService()
 
 
 @pytest.fixture
-def uc(parser: ProtocolTextParser) -> ParseProtocolUC:
-    return ParseProtocolUC(parser=parser)
+def uc() -> ParseProtocolUC:
+    return ParseProtocolUC()
 
 
-def test_parse_full_example(parser: ProtocolTextParser) -> None:
+def test_parse_full_example(parser_service: ProtocolTextParserService) -> None:
     text = (EXAMPLES / "notes_to_protocol.md").read_text(encoding="utf-8")
-    protocol = parser.parse(text)
+    protocol = parser_service.parse(text)
 
     assert protocol.date == "12.03.2026"
     assert protocol.participants == "Игорь, Света, Павел"
@@ -64,11 +64,13 @@ def test_parse_full_example(parser: ProtocolTextParser) -> None:
     )
 
 
-def test_parse_missing_assignee_and_deadline(parser: ProtocolTextParser) -> None:
+def test_parse_missing_assignee_and_deadline(
+    parser_service: ProtocolTextParserService,
+) -> None:
     text = (FIXTURES / "protocol_missing_assignee_deadline.md").read_text(
         encoding="utf-8"
     )
-    protocol = parser.parse(text)
+    protocol = parser_service.parse(text)
 
     assert protocol.tasks[0].assignee == NOT_SPECIFIED
     assert protocol.tasks[0].deadline == NOT_SPECIFIED
@@ -76,9 +78,9 @@ def test_parse_missing_assignee_and_deadline(parser: ProtocolTextParser) -> None
     assert protocol.tasks[2].assignee == NOT_SPECIFIED
 
 
-def test_parse_empty_sections(parser: ProtocolTextParser) -> None:
+def test_parse_empty_sections(parser_service: ProtocolTextParserService) -> None:
     text = (FIXTURES / "protocol_empty_sections.md").read_text(encoding="utf-8")
-    protocol = parser.parse(text)
+    protocol = parser_service.parse(text)
 
     assert protocol.date == NOT_SPECIFIED
     assert protocol.participants == NOT_SPECIFIED
@@ -88,9 +90,11 @@ def test_parse_empty_sections(parser: ProtocolTextParser) -> None:
     assert protocol.tasks == ()
 
 
-def test_parse_broken_format_raises(parser: ProtocolTextParser) -> None:
+def test_parse_broken_format_raises(
+    parser_service: ProtocolTextParserService,
+) -> None:
     with pytest.raises(ProtocolParseError, match="начинаться"):
-        parser.parse("просто текст без протокола")
+        parser_service.parse("просто текст без протокола")
 
 
 @pytest.mark.parametrize(
@@ -143,9 +147,11 @@ def test_parse_broken_format_raises(parser: ProtocolTextParser) -> None:
         ),
     ],
 )
-def test_parse_various_broken_formats(parser: ProtocolTextParser, broken: str) -> None:
+def test_parse_various_broken_formats(
+    parser_service: ProtocolTextParserService, broken: str
+) -> None:
     with pytest.raises(ProtocolParseError):
-        parser.parse(broken)
+        parser_service.parse(broken)
 
 
 def test_parse_protocol_uc_success(uc: ParseProtocolUC) -> None:

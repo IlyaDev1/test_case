@@ -1,3 +1,1 @@
-from src.infra.protocol.text_parser import ProtocolTextParser
-
-__all__ = ["ProtocolTextParser"]
+"""Инфраструктура протокола встречи (экспорт в Word и т.п.)."""

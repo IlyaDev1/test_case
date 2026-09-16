@@ -27,8 +27,8 @@ _TASKS_HEADER = "| Задача | Ответственный | Срок |"
 _TASKS_SEPARATOR_RE = re.compile(r"^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$")
 
 
-class ProtocolTextParser:
-    """Парсер markdown-протокола только по контрактным маркерам (без эвристик)."""
+class ProtocolTextParserService:
+    """Разбор markdown-протокола по жёстким маркерам разделов → MeetingProtocol."""
 
     def parse(self, text: str) -> MeetingProtocol:
         cleaned = self._strip_html_comments(text).strip()
@@ -70,7 +70,6 @@ class ProtocolTextParser:
                 raise ProtocolParseError(f"отсутствует раздел «{marker}»")
             positions.append((marker, idx))
 
-        # Разделы должны идти строго в контрактном порядке.
         for prev, curr in zip(positions, positions[1:], strict=False):
             if prev[1] >= curr[1]:
                 raise ProtocolParseError(
@@ -79,7 +78,6 @@ class ProtocolTextParser:
                     context={"found_order": [m for m, _ in positions]},
                 )
 
-        # Между заголовком документа и первым разделом не должно быть текста.
         before_first = body[: positions[0][1]].strip()
         if before_first:
             raise ProtocolParseError(
@@ -222,7 +220,7 @@ class ProtocolTextParser:
 
     @staticmethod
     def _normalize_table_row(line: str) -> str:
-        cells = ProtocolTextParser._split_table_row(line)
+        cells = ProtocolTextParserService._split_table_row(line)
         return "| " + " | ".join(cell.strip() for cell in cells) + " |"
 
     @staticmethod

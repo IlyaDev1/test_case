@@ -6,14 +6,14 @@
 
 ```
 src/
-  core/           # domain + application (use cases, ports)
-  infra/          # парсер, docx-экспорт, загрузчик скилов
+  core/           # domain + application (use cases, ProtocolTextParserService)
+  infra/          # docx-экспорт, загрузчик скилов
   presentation/   # FastAPI, CLI
 skills/           # артефакты скилов (SKILL.md, references, routes)
 tests/
 ```
 
-Слои повторяют подход `chatbot_to`: тонкие роутеры, use case + port + Result, без DI-контейнера и БД.
+Слои повторяют подход `chatbot_to`: тонкие роутеры, use case + service + Result, без DI-контейнера и БД.
 
 ## Скил `meeting-minutes`
 
