@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 
 from src.core.application.skill.exceptions import SkillNotFoundError
-from src.core.application.skill.skill_prompt_port import SkillPromptPort
+from src.core.application.skill.ports import SkillPromptPort
 from src.core.domain.skill.exceptions import SkillValidationError
 
 

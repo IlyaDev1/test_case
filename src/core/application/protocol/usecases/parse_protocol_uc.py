@@ -1,8 +1,11 @@
 from src.core.abc.result import FailResult, SuccessResult
 from src.core.abc.usecase import UseCaseInterface
 from src.core.application.protocol.constants import PARSE_ERROR_CODE
-from src.core.application.protocol.dtos import ParseProtocolDTO, ParseProtocolResult
 from src.core.application.protocol.services import ProtocolTextParserService
+from src.core.application.protocol.usecases.dtos import (
+    ParseProtocolDTO,
+    ParseProtocolResult,
+)
 from src.core.domain.protocol.exceptions import ProtocolParseError
 
 

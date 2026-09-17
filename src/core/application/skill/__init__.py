@@ -1,4 +1,4 @@
-from src.core.application.skill.ports import SkillSourcePort
-from src.core.application.skill.registry_service import SkillRegistryService
+from src.core.application.skill.ports import SkillPromptPort, SkillSourcePort
+from src.core.application.skill.services import SkillRegistryService
 
-__all__ = ["SkillRegistryService", "SkillSourcePort"]
+__all__ = ["SkillPromptPort", "SkillRegistryService", "SkillSourcePort"]

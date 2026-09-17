@@ -18,7 +18,7 @@ from src.core.application.protocol.constants import (
     PARSE_ERROR_CODE,
     SKILL_NOT_FOUND_CODE,
 )
-from src.core.application.skill.skill_prompt_port import SkillPromptPort
+from src.core.application.skill.ports import SkillPromptPort
 from src.infra.llm.deepseek_client import DeepSeekClient
 from src.infra.protocol.docx_exporter import DocxProtocolExporterService
 from src.presentation.fastapi.app import create_app

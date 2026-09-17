@@ -2,7 +2,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-from src.core.application.skill.registry_service import SkillRegistryService
+from src.core.application.skill.services import SkillRegistryService
 
 skills_router = APIRouter(
     prefix="/skills",

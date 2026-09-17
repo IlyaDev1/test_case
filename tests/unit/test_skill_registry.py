@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.core.application.skill.registry_service import SkillRegistryService
+from src.core.application.skill.services import SkillRegistryService
 from src.core.domain.skill.entities import SkillMeta
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "skills"

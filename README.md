@@ -8,7 +8,7 @@
 src/
   core/
     domain/       # сущности, правила валидации, доменные исключения
-    application/  # use cases, сервисы приложения, Result
+    application/  # usecases/, services/, ports/
   infra/          # docx-экспорт, загрузчик скилов с диска, DI (dishka)
   presentation/   # FastAPI-роутеры
 skills/           # артефакты скилов (SKILL.md, references/, routes/)

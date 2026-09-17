@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from dishka import AsyncContainer
 from fastapi import FastAPI
 
-from src.core.application.skill.registry_service import SkillRegistryService
+from src.core.application.skill.services import SkillRegistryService
 
 
 @asynccontextmanager

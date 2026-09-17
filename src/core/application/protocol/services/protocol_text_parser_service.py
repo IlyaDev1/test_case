@@ -96,7 +96,7 @@ class ProtocolTextParserService:
         lines = [line.rstrip() for line in raw.strip().splitlines() if line.strip()]
         if len(lines) != 3:
             raise ProtocolParseError(
-                "метаданные: ожидаются ровно 3 пункта " "(Дата, Участники, Тема)",
+                "метаданные: ожидаются ровно 3 пункта (Дата, Участники, Тема)",
                 context={"lines": lines},
             )
 

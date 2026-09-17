@@ -4,15 +4,16 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from src.core.abc.result import FailResult, SuccessResult
-from src.core.application.protocol import ExportProtocolDTO, ExportProtocolResult
-from src.core.application.protocol.constants import (
+from src.core.application.protocol import (
     DEFAULT_SKILL_NAME,
     LLM_ERROR_CODE,
     SKILL_NOT_FOUND_CODE,
+    ExportProtocolDTO,
+    ExportProtocolResult,
+    ExportProtocolToDocxUC,
+    GenerateProtocolDTO,
+    GenerateProtocolToDocxUC,
 )
-from src.core.application.protocol.dtos import GenerateProtocolDTO
-from src.core.application.protocol.export_protocol_uc import ExportProtocolToDocxUC
-from src.core.application.protocol.generate_protocol_uc import GenerateProtocolToDocxUC
 
 DOCX_MEDIA_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"

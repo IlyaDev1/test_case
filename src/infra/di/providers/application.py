@@ -1,11 +1,13 @@
 from dishka import Provider, Scope, provide
 
 from src.core.application.llm.ports import LlmChatPort
-from src.core.application.protocol.export_protocol_uc import ExportProtocolToDocxUC
-from src.core.application.protocol.generate_protocol_uc import GenerateProtocolToDocxUC
-from src.core.application.protocol.parse_protocol_uc import ParseProtocolUC
 from src.core.application.protocol.services import ProtocolTextParserService
-from src.core.application.skill.skill_prompt_port import SkillPromptPort
+from src.core.application.protocol.usecases import (
+    ExportProtocolToDocxUC,
+    GenerateProtocolToDocxUC,
+    ParseProtocolUC,
+)
+from src.core.application.skill.ports import SkillPromptPort
 
 
 class ApplicationProvider(Provider):

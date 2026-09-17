@@ -8,14 +8,16 @@ from src.core.application.protocol.constants import (
     PARSE_ERROR_CODE,
     SKILL_NOT_FOUND_CODE,
 )
-from src.core.application.protocol.dtos import (
+from src.core.application.protocol.usecases.dtos import (
     ExportProtocolDTO,
     ExportProtocolResult,
     GenerateProtocolDTO,
 )
-from src.core.application.protocol.export_protocol_uc import ExportProtocolToDocxUC
+from src.core.application.protocol.usecases.export_protocol_uc import (
+    ExportProtocolToDocxUC,
+)
 from src.core.application.skill.exceptions import SkillNotFoundError
-from src.core.application.skill.skill_prompt_port import SkillPromptPort
+from src.core.application.skill.ports import SkillPromptPort
 
 _MAX_LLM_ATTEMPTS = 2
 _MARKDOWN_FENCE_RE = re.compile(
