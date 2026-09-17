@@ -1,11 +1,9 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel, Field
 
 from src.core.abc.result import FailResult, SuccessResult
 from src.core.application.protocol import (
-    DEFAULT_SKILL_NAME,
     LLM_ERROR_CODE,
     SKILL_NOT_FOUND_CODE,
     ExportProtocolDTO,
@@ -13,6 +11,10 @@ from src.core.application.protocol import (
     ExportProtocolToDocxUC,
     GenerateProtocolDTO,
     GenerateProtocolToDocxUC,
+)
+from src.presentation.fastapi.protocol.schemas import (
+    ExportProtocolRequest,
+    GenerateProtocolRequest,
 )
 
 DOCX_MEDIA_TYPE = (
@@ -25,15 +27,6 @@ protocol_router = APIRouter(
     tags=["protocol"],
     route_class=DishkaRoute,
 )
-
-
-class ExportProtocolRequest(BaseModel):
-    text: str
-
-
-class GenerateProtocolRequest(BaseModel):
-    notes: str
-    skill_name: str = Field(default=DEFAULT_SKILL_NAME)
 
 
 def _docx_response(content: bytes) -> Response:

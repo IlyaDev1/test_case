@@ -1,21 +1,14 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Query
-from pydantic import BaseModel
 
 from src.core.application.skill.services import SkillRegistryService
+from src.presentation.fastapi.skills.schemas import SkillMetaResponse
 
 skills_router = APIRouter(
     prefix="/skills",
     tags=["skills"],
     route_class=DishkaRoute,
 )
-
-
-class SkillMetaResponse(BaseModel):
-    name: str
-    caption: str
-    description: str
-    has_files: bool
 
 
 @skills_router.get("")
