@@ -1,7 +1,7 @@
 [project]
 name = "llm-skills"
 version = "0.1.0"
-description = "LLM Skills test assignment: meeting protocol parser and skill registry"
+description = "LLM skills: meeting protocol, Word export, skill registry"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
