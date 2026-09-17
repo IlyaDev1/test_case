@@ -41,12 +41,11 @@ tests/
 ## Установка
 
 ```bash
-cd test_case
 uv sync --group dev
 uv run pre-commit install
 ```
 
-Секреты (API-ключи и т.п.) храните в `.env` — файл в `.gitignore`, в репозиторий не коммитится. Шаблон переменных: `.env.example`.
+Секреты (API-ключи и т.п.) храните в `.env` в корне проекта — файл в `.gitignore`, в репозиторий не коммитится. Шаблон: `.env.example`. При старте API `.env` подхватывается автоматически (`load_dotenv` в `config/bootstrap.py`).
 
 ## Запуск
 
@@ -75,10 +74,16 @@ uv run pre-commit run --all-files
 ### API
 
 ```bash
+uv run python -m src.presentation.fastapi.app
+```
+
+или через uvicorn напрямую:
+
+```bash
 uv run uvicorn src.presentation.fastapi.app:create_app --factory --reload
 ```
 
-Сервер по умолчанию: `http://127.0.0.1:8000`.
+Сервер по умолчанию: `http://127.0.0.1:8000`. Переменные `APP_HOST` / `APP_PORT` можно задать в `.env`.
 
 **Health check:**
 
@@ -123,6 +128,6 @@ curl -X POST http://127.0.0.1:8000/protocol/generate \
   -o protocol.docx
 ```
 
-Требуется `DEEPSEEK_API_KEY` в `.env`. Опционально: `skill_name` (по умолчанию `meeting-minutes`).
+Нужен `DEEPSEEK_API_KEY` в `.env` (подхватывается при старте). Опционально: `skill_name` (по умолчанию `meeting-minutes`).
 
 Коды ошибок: 404 — скил не найден, 422 — невалидный markdown от модели, 502 — ошибка LLM.

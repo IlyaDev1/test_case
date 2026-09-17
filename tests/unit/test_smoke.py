@@ -21,6 +21,7 @@ from src.presentation.fastapi.app import create_app
         "src.infra.di",
         "src.core.application.llm",
         "src.presentation.fastapi.app",
+        "config.bootstrap",
     ],
 )
 def test_module_imports(module_path: str) -> None:
@@ -46,3 +47,9 @@ def test_create_app_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_load_runtime_env_does_not_raise() -> None:
+    from config.bootstrap import load_runtime_env
+
+    load_runtime_env()

@@ -1,3 +1,10 @@
+# ruff: noqa: E402
+from config.bootstrap import load_runtime_env  # isort: ignore
+
+load_runtime_env()  # isort: ignore
+
+import os
+
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
@@ -18,3 +25,17 @@ def create_app() -> FastAPI:
     setup_dishka(container=container, app=app)
 
     return app
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        app="src.presentation.fastapi.app:create_app",
+        factory=True,
+        host=os.getenv("APP_HOST", "127.0.0.1"),
+        port=int(os.getenv("APP_PORT", "8000")),
+        reload=True,
+        access_log=False,
+        log_level="info",
+    )
