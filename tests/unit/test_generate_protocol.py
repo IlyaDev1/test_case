@@ -20,7 +20,7 @@ from src.core.application.protocol.constants import (
 )
 from src.core.application.skill.ports import SkillPromptPort
 from src.infra.llm.deepseek_client import DeepSeekClient
-from src.infra.protocol.docx_exporter import DocxProtocolExporterService
+from src.infra.protocol.docx_exporter import DocxProtocolExporter
 from src.presentation.fastapi.app import create_app
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -76,7 +76,7 @@ class FakeSkillPromptLoader(SkillPromptPort):
 def export_uc() -> ExportProtocolToDocxUC:
     return ExportProtocolToDocxUC(
         parser=ProtocolTextParserService(),
-        exporter=DocxProtocolExporterService(),
+        exporter=DocxProtocolExporter(),
     )
 
 
@@ -93,7 +93,7 @@ async def test_generate_success(export_uc: ExportProtocolToDocxUC) -> None:
     result = await uc.execute(GenerateProtocolDTO(notes=NOTES_INPUT))
 
     assert isinstance(result, SuccessResult)
-    assert len(result.data.content) > 0
+    assert result.data.artifact.body
     assert loader.requested == ["meeting-minutes"]
     assert len(llm.calls) == 1
     assert "skill body" in llm.calls[0][0]

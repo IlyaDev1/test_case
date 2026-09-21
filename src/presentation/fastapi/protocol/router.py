@@ -12,29 +12,17 @@ from src.core.application.protocol import (
     GenerateProtocolDTO,
     GenerateProtocolToDocxUC,
 )
+from src.presentation.fastapi.protocol.responses import artifact_to_response
 from src.presentation.fastapi.protocol.schemas import (
     ExportProtocolRequest,
     GenerateProtocolRequest,
 )
-
-DOCX_MEDIA_TYPE = (
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-)
-DOCX_FILENAME = "protocol.docx"
 
 protocol_router = APIRouter(
     prefix="/protocol",
     tags=["protocol"],
     route_class=DishkaRoute,
 )
-
-
-def _docx_response(content: bytes) -> Response:
-    return Response(
-        content=content,
-        media_type=DOCX_MEDIA_TYPE,
-        headers={"Content-Disposition": f'attachment; filename="{DOCX_FILENAME}"'},
-    )
 
 
 @protocol_router.post("/export")
@@ -49,7 +37,7 @@ def export_protocol(
 
     assert isinstance(result, SuccessResult)
     assert isinstance(result.data, ExportProtocolResult)
-    return _docx_response(result.data.content)
+    return artifact_to_response(result.data.artifact)
 
 
 @protocol_router.post("/generate")
@@ -70,4 +58,4 @@ async def generate_protocol(
 
     assert isinstance(result, SuccessResult)
     assert isinstance(result.data, ExportProtocolResult)
-    return _docx_response(result.data.content)
+    return artifact_to_response(result.data.artifact)

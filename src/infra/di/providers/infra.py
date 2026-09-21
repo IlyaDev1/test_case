@@ -2,9 +2,10 @@ from pathlib import Path
 
 from dishka import Provider, Scope, provide
 
+from src.core.application.protocol.ports import ProtocolExporterPort
 from src.core.application.skill.ports import SkillPromptPort
 from src.core.application.skill.services import SkillRegistryService
-from src.infra.protocol.docx_exporter import DocxProtocolExporterService
+from src.infra.protocol.docx_exporter import DocxProtocolExporter
 from src.infra.skill.filesystem_repo import FilesystemSkillRepo
 from src.infra.skill.skill_prompt_loader import FilesystemSkillPromptLoader
 
@@ -19,8 +20,11 @@ class InfraProvider(Provider):
     def skills_dir(self) -> Path:
         return SKILLS_DIR
 
-    docx_exporter = provide(DocxProtocolExporterService)
     filesystem_skill_repo = provide(FilesystemSkillRepo)
+
+    @provide
+    def protocol_exporter(self) -> ProtocolExporterPort:
+        return DocxProtocolExporter()
 
     @provide
     def skill_prompt_loader(self, skills_dir: Path) -> SkillPromptPort:

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.core.application.protocol.ports import ProtocolArtifact
 from src.core.domain.protocol.entities import MeetingProtocol
 
 
@@ -20,7 +21,7 @@ class ExportProtocolDTO:
 
 @dataclass(frozen=True, slots=True)
 class ExportProtocolResult:
-    content: bytes
+    artifact: ProtocolArtifact
 
 
 @dataclass(frozen=True, slots=True)

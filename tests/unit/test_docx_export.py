@@ -9,18 +9,21 @@ from src.core.abc import SuccessResult
 from src.core.application.protocol import (
     ExportProtocolDTO,
     ExportProtocolToDocxUC,
+    ProtocolArtifact,
+    ProtocolExporterPort,
     ProtocolTextParserService,
 )
-from src.core.domain.protocol import NO_DATA, NOT_SPECIFIED
+from src.core.domain.protocol import NO_DATA, NOT_SPECIFIED, MeetingProtocol
 from src.infra.protocol.docx_exporter import (
     SECTION_DECISIONS,
     SECTION_DISCUSSION,
     SECTION_METADATA,
     SECTION_TASKS,
     TITLE,
-    DocxProtocolExporterService,
+    DocxProtocolExporter,
 )
 from src.presentation.fastapi.app import create_app
+from src.presentation.fastapi.protocol.responses import artifact_to_response
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = ROOT / "examples"
@@ -35,7 +38,7 @@ DOCX_MEDIA_TYPE = (
 def export_uc() -> ExportProtocolToDocxUC:
     return ExportProtocolToDocxUC(
         parser=ProtocolTextParserService(),
-        exporter=DocxProtocolExporterService(),
+        exporter=DocxProtocolExporter(),
     )
 
 
@@ -79,14 +82,14 @@ def _export_fixture(export_uc: ExportProtocolToDocxUC, name: str) -> bytes:
     text = (FIXTURES / name).read_text(encoding="utf-8")
     result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
-    return result.data.content
+    return result.data.artifact.body or b""
 
 
 def test_docx_structure_full_example(export_uc: ExportProtocolToDocxUC) -> None:
     text = (EXAMPLES / "notes_to_protocol.md").read_text(encoding="utf-8")
     result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
-    document = _load_docx(result.data.content)
+    document = _load_docx(result.data.artifact.body or b"")
 
     headings = _heading_texts(document)
     assert headings[0] == (1, TITLE)
@@ -143,3 +146,34 @@ def test_api_export_protocol_smoke() -> None:
 
     document = _load_docx(response.content)
     assert _heading_texts(document)[0] == (1, TITLE)
+
+
+class _LinkExporter(ProtocolExporterPort):
+    def export(self, protocol: MeetingProtocol) -> ProtocolArtifact:
+        return ProtocolArtifact.link(url="https://docs.example/protocol")
+
+
+def test_export_returns_file_artifact(export_uc: ExportProtocolToDocxUC) -> None:
+    text = (EXAMPLES / "notes_to_protocol.md").read_text(encoding="utf-8")
+    result = export_uc.execute(ExportProtocolDTO(text=text))
+    assert isinstance(result, SuccessResult)
+
+    artifact = result.data.artifact
+    assert artifact.kind == "file"
+    assert artifact.filename == "protocol.docx"
+    assert artifact.body
+    assert artifact.media_type and artifact.media_type.startswith(DOCX_MEDIA_TYPE)
+
+
+def test_link_artifact_becomes_http_redirect() -> None:
+    text = (FIXTURES / "protocol_empty_sections.md").read_text(encoding="utf-8")
+    uc = ExportProtocolToDocxUC(
+        parser=ProtocolTextParserService(),
+        exporter=_LinkExporter(),
+    )
+    result = uc.execute(ExportProtocolDTO(text=text))
+    assert isinstance(result, SuccessResult)
+
+    response = artifact_to_response(result.data.artifact)
+    assert response.status_code == 302
+    assert response.headers["location"] == "https://docs.example/protocol"

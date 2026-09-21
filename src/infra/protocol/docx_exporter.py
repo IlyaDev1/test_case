@@ -7,6 +7,7 @@ from docx import Document
 from docx.shared import Pt
 from docx.table import Table
 
+from src.core.application.protocol.ports import ProtocolArtifact, ProtocolExporterPort
 from src.core.domain.protocol.entities import MeetingProtocol, TaskItem
 from src.core.domain.protocol.placeholders import NO_DATA
 
@@ -18,16 +19,24 @@ SECTION_TASKS = "Задачи"
 
 _TASKS_HEADERS = ("Задача", "Ответственный", "Срок")
 _DEFAULT_FONT_SIZE = Pt(11)
+_DOCX_MEDIA_TYPE = (
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+)
+_DOCX_FILENAME = "protocol.docx"
 
 
-class DocxProtocolExporterService:
-    """Экспорт MeetingProtocol в Word (.docx)."""
+class DocxProtocolExporter(ProtocolExporterPort):
+    """Адаптер: MeetingProtocol → файл .docx."""
 
-    def export(self, protocol: MeetingProtocol) -> bytes:
+    def export(self, protocol: MeetingProtocol) -> ProtocolArtifact:
         document = self._build_document(protocol)
         buffer = BytesIO()
         document.save(buffer)
-        return buffer.getvalue()
+        return ProtocolArtifact.file(
+            body=buffer.getvalue(),
+            media_type=_DOCX_MEDIA_TYPE,
+            filename=_DOCX_FILENAME,
+        )
 
     def export_to_path(self, protocol: MeetingProtocol, path: Path | str) -> None:
         document = self._build_document(protocol)
@@ -109,7 +118,7 @@ class DocxProtocolExporterService:
             row_cells[1].text = task.assignee
             row_cells[2].text = task.deadline
 
-        DocxProtocolExporterService._apply_table_font(table)
+        DocxProtocolExporter._apply_table_font(table)
 
     @staticmethod
     def _apply_table_font(table: Table) -> None:
