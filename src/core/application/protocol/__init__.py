@@ -4,7 +4,12 @@ from src.core.application.protocol.constants import (
     PARSE_ERROR_CODE,
     SKILL_NOT_FOUND_CODE,
 )
-from src.core.application.protocol.ports import ProtocolArtifact, ProtocolExporterPort
+from src.core.application.protocol.ports import (
+    FileArtifact,
+    LinkArtifact,
+    ProtocolArtifact,
+    ProtocolExporterPort,
+)
 from src.core.application.protocol.services import ProtocolTextParserService
 from src.core.application.protocol.usecases import (
     ExportProtocolDTO,
@@ -30,6 +35,8 @@ __all__ = [
     "ParseProtocolDTO",
     "ParseProtocolResult",
     "ParseProtocolUC",
+    "FileArtifact",
+    "LinkArtifact",
     "ProtocolArtifact",
     "ProtocolExporterPort",
     "ProtocolTextParserService",

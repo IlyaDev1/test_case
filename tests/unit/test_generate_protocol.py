@@ -9,6 +9,7 @@ from src.core.application.llm.exceptions import LlmError
 from src.core.application.llm.ports import LlmChatPort
 from src.core.application.protocol import (
     ExportProtocolToDocxUC,
+    FileArtifact,
     GenerateProtocolDTO,
     GenerateProtocolToDocxUC,
     ProtocolTextParserService,
@@ -93,6 +94,7 @@ async def test_generate_success(export_uc: ExportProtocolToDocxUC) -> None:
     result = await uc.execute(GenerateProtocolDTO(notes=NOTES_INPUT))
 
     assert isinstance(result, SuccessResult)
+    assert isinstance(result.data.artifact, FileArtifact)
     assert result.data.artifact.body
     assert loader.requested == ["meeting-minutes"]
     assert len(llm.calls) == 1

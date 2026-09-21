@@ -7,7 +7,7 @@ from docx import Document
 from docx.shared import Pt
 from docx.table import Table
 
-from src.core.application.protocol.ports import ProtocolArtifact, ProtocolExporterPort
+from src.core.application.protocol.ports import FileArtifact, ProtocolExporterPort
 from src.core.domain.protocol.entities import MeetingProtocol, TaskItem
 from src.core.domain.protocol.placeholders import NO_DATA
 
@@ -28,11 +28,11 @@ _DOCX_FILENAME = "protocol.docx"
 class DocxProtocolExporter(ProtocolExporterPort):
     """Адаптер: MeetingProtocol → файл .docx."""
 
-    def export(self, protocol: MeetingProtocol) -> ProtocolArtifact:
+    def export(self, protocol: MeetingProtocol) -> FileArtifact:
         document = self._build_document(protocol)
         buffer = BytesIO()
         document.save(buffer)
-        return ProtocolArtifact.file(
+        return FileArtifact(
             body=buffer.getvalue(),
             media_type=_DOCX_MEDIA_TYPE,
             filename=_DOCX_FILENAME,

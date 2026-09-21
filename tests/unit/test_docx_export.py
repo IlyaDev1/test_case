@@ -9,7 +9,8 @@ from src.core.abc import SuccessResult
 from src.core.application.protocol import (
     ExportProtocolDTO,
     ExportProtocolToDocxUC,
-    ProtocolArtifact,
+    FileArtifact,
+    LinkArtifact,
     ProtocolExporterPort,
     ProtocolTextParserService,
 )
@@ -82,14 +83,16 @@ def _export_fixture(export_uc: ExportProtocolToDocxUC, name: str) -> bytes:
     text = (FIXTURES / name).read_text(encoding="utf-8")
     result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
-    return result.data.artifact.body or b""
+    assert isinstance(result.data.artifact, FileArtifact)
+    return result.data.artifact.body
 
 
 def test_docx_structure_full_example(export_uc: ExportProtocolToDocxUC) -> None:
     text = (EXAMPLES / "notes_to_protocol.md").read_text(encoding="utf-8")
     result = export_uc.execute(ExportProtocolDTO(text=text))
     assert isinstance(result, SuccessResult)
-    document = _load_docx(result.data.artifact.body or b"")
+    assert isinstance(result.data.artifact, FileArtifact)
+    document = _load_docx(result.data.artifact.body)
 
     headings = _heading_texts(document)
     assert headings[0] == (1, TITLE)
@@ -149,8 +152,8 @@ def test_api_export_protocol_smoke() -> None:
 
 
 class _LinkExporter(ProtocolExporterPort):
-    def export(self, protocol: MeetingProtocol) -> ProtocolArtifact:
-        return ProtocolArtifact.link(url="https://docs.example/protocol")
+    def export(self, protocol: MeetingProtocol) -> LinkArtifact:
+        return LinkArtifact(url="https://docs.example/protocol")
 
 
 def test_export_returns_file_artifact(export_uc: ExportProtocolToDocxUC) -> None:
@@ -159,10 +162,10 @@ def test_export_returns_file_artifact(export_uc: ExportProtocolToDocxUC) -> None
     assert isinstance(result, SuccessResult)
 
     artifact = result.data.artifact
-    assert artifact.kind == "file"
+    assert isinstance(artifact, FileArtifact)
     assert artifact.filename == "protocol.docx"
     assert artifact.body
-    assert artifact.media_type and artifact.media_type.startswith(DOCX_MEDIA_TYPE)
+    assert artifact.media_type.startswith(DOCX_MEDIA_TYPE)
 
 
 def test_link_artifact_becomes_http_redirect() -> None:
