@@ -7,4 +7,4 @@ class LlmChatPort(ABC):
     @abstractmethod
     async def complete(self, *, system_prompt: str, user_message: str) -> str:
         """Отправляет промпт модели и возвращает текст ответа."""
-        raise NotImplementedError
+        ...

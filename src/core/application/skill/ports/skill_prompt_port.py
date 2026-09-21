@@ -7,4 +7,4 @@ class SkillPromptPort(ABC):
     @abstractmethod
     def load(self, skill_name: str) -> str:
         """Возвращает текст system prompt для LLM."""
-        raise NotImplementedError
+        ...
